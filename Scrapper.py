@@ -5,6 +5,9 @@ from random import randint
 
 import numpy as np
 import pandas as pd
+import sqlalchemy
+import json
+
 
 response = get('https://detroit.craigslist.org/d/cars-trucks/search/cta')
 html_soup = BeautifulSoup(response.text, 'html.parser')
@@ -63,13 +66,26 @@ for page in pages:
 
     print("Scrape complete!")
 
-print(len(post_timing))
-print(len(post_hoods))
-print(len(post_titles))
-print(len(post_prices))
-print(len(post_links))
 
 cars = pd.DataFrame({'posted': post_timing, 'location': post_hoods,
                     'titles': post_titles, 'price': post_prices, 'link': post_links})
 
-print(cars.head(10))
+
+def db_write(cars_dataframe):
+    db_connection = sqlalchemy.create_engine('mysql+mysqlconnector://{}:{}@{}/{}'.format(db_user, db_pass, db_url,
+                                                                                         db_name))
+    cars_dataframe.to_sql(con=db_connection, name='cars_scrape')
+
+
+if __name__ == '__main__':
+
+    with open('config.json', 'r') as file:
+        config = json.load(file)
+
+    db_user = config['db_user']
+    db_pass = config['db_pass']
+    db_url = config['db_url']
+    db_name = config['db_name']
+
+    db_write(cars)
+
