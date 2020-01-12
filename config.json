@@ -1,0 +1,6 @@
+{
+  "db_user": "root",
+  "db_pass": "fruitloops",
+  "db_url": "localhost:3306",
+  "db_name": "cars"
+}
